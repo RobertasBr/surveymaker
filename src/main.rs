@@ -1,15 +1,15 @@
-use rocket::routes;
-use rocket::response::content;
-use prism::render;
+#[macro_use] extern crate rocket;
+
+use rocket::fs::{FileServer, relative};
+
+#[get("/")]
+fn index() -> &'static str {
+    include_str!("../static/index.html")
+}
 
 #[launch]
 fn rocket() -> _ {
     rocket::build()
-    .mount("/", routes![hello])
-    .launch()
-}
-
-#[get("/hello")]
-fn hello() -> content::Html<&'static str> {
-content::Html(prism::render("index.html", &()).unwrap())
+        .mount("/", routes![index])
+        .mount("/static", FileServer::from(relative!("static")))
 }
