@@ -3,12 +3,67 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Rust App</title>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/themes/prism.css" rel="stylesheet">
+    <title>Questionnaire App</title>
+    <script>
+        async function submitQuestion() {
+            const questionText = document.getElementById("questionText").value;
+
+            await fetch("/add_question", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ question_text: questionText }),
+            });
+
+            alert("Question added successfully!");
+            getQuestions();  // Refresh questions after adding
+        }
+
+        async function getQuestions() {
+            const response = await fetch("/get_questions");
+            const questions = await response.json();
+
+            const questionsDiv = document.getElementById("questions");
+            questionsDiv.innerHTML = "";
+
+            questions.forEach(question => {
+                const questionElement = document.createElement("div");
+                questionElement.innerHTML = `
+                    <h3>${question.questionText}</h3>
+                    <input type="text" placeholder="Your answer" id="answer-${question.id}">
+                    <button onclick="submitAnswer('${question.id}')">Submit Answer</button>
+                `;
+                questionsDiv.appendChild(questionElement);
+            });
+        }
+
+        async function submitAnswer(id) {
+            const answer = document.getElementById(`answer-${id}`).value;
+
+            await fetch(`/update_answer/${id}`, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ answer: answer }),
+            });
+
+            alert("Answer submitted successfully!");
+            getQuestions();  // Refresh questions after submitting answer
+        }
+
+        document.addEventListener("DOMContentLoaded", getQuestions);
+    </script>
 </head>
 <body>
-    <h1>Hello, Rocket and Prism!</h1>
-    <pre><code class="language-rust">fn main() { println!("Hello, world!"); }</code></pre>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.28.0/prism.js"></script>
+    <h1>Questionnaire App</h1>
+
+    <div>
+        <h2>Add a New Question</h2>
+        <input type="text" id="questionText" placeholder="Enter your question here">
+        <button onclick="submitQuestion()">Submit Question</button>
+    </div>
+
+    <div>
+        <h2>Questions</h2>
+        <div id="questions"></div>
+    </div>
 </body>
 </html>

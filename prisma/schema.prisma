@@ -1,0 +1,14 @@
+datasource db {
+  provider = "mongodb"  // Use MongoDB as the provider
+  url      = env("DATABASE_URL")  // Get the URL from the environment variable
+}
+
+generator client {
+  provider = "prisma-client-rust"
+}
+
+model Question {
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId  // MongoDB uses ObjectId for unique IDs
+  questionText  String
+  answer        String?
+}

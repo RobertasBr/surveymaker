@@ -1,15 +1,18 @@
 #[macro_use] extern crate rocket;
 
-use rocket::fs::{FileServer, relative};
+use prisma_client_rust::PrismaClient;
+use rocket::serde::{json::Json, Deserialize};
+use rocket::State;
+use std::sync::Arc;
 
-#[get("/")]
-fn index() -> &'static str {
-    include_str!("../static/index.html")
+// JSON structure for creating requests
+#[derive(Debug, Deserialize)]
+struct NewQuestion {
+    question_text: String,
 }
 
-#[launch]
-fn rocket() -> _ {
-    rocket::build()
-        .mount("/", routes![index])
-        .mount("/static", FileServer::from(relative!("static")))
+// JSON structure for updated answer field for the question
+#[derive(Debug, Deserialize)]
+struct Answer {
+    answer: String,
 }
